@@ -14,10 +14,10 @@
       "description": "First species uses only whole notes."
     },
     {
-      "id": "counterpointAboveCantus",
+      "id": "noVoiceCrossing",
       "enabled": true,
       "severity": "error",
-      "description": "Counterpoint should remain above the cantus firmus."
+      "description": "The lower voice should never meet or cross above the upper voice."
     },
     {
       "id": "verticalConsonance",
@@ -38,10 +38,34 @@
       "description": "Avoid parallel fifths and octaves between adjacent notes."
     },
     {
-      "id": "noRepeatedNotes",
+      "id": "noRepeatedNotesCF",
       "enabled": true,
       "severity": "error",
-      "description": "A voice should not repeat the note played immediately before"
+      "description": "The cantus firmus should not repeat the note played immediately before."
+    },
+    {
+      "id": "oneRepeatedNoteCPT",
+      "enabled": true,
+      "severity": "error",
+      "description": "The counterpoint line may have no more than one repeated tone."
+    },
+    {
+      "id": "uniqueClimax",
+      "enabled": true,
+      "severity": "error",
+      "description": "A voice's highest note should only appear once."
+    },
+    {
+      "id": "cadenceCF",
+      "enabled": true,
+      "severity": "error",
+      "description": "The cantus firmus should end with scale degree 2 descending to scale degree 1."
+    },
+    {
+      "id": "cadenceCPT",
+      "enabled": true,
+      "severity": "error",
+      "description": "The counterpoint line should end with scale degree 7 ascending to scale degree 1."
     }
   ]
 }

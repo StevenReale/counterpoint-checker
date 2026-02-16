@@ -165,6 +165,10 @@ svg {
   stroke-width: 1;
 }
 
+.sweep-highlight {
+  fill: rgba(30, 130, 215, 0.18);
+}
+
 .note-hitbox {
   fill: transparent;
   cursor: crosshair;

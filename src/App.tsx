@@ -10,7 +10,7 @@ type Voice = "upper" | "lower";
 type StaffNote = Note | null;
 
 const DEFAULT_MEASURE_COUNT = 8;
-const MEASURE_COUNT_OPTIONS = [4, 8, 12, 16] as const;
+const MEASURE_COUNT_OPTIONS = [8, 9, 10, 11, 12, 13] as const;
 const WHOLE_NOTE: Note["rhythm"] = "whole";
 const KEY_SIGNATURES: KeySignature[] = [
   "C major",
@@ -49,9 +49,11 @@ export default function App(): JSX.Element {
   const [keySignature, setKeySignature] = useState<KeySignature>("C major");
   const [measureCount, setMeasureCount] = useState<number>(DEFAULT_MEASURE_COUNT);
   const [tool, setTool] = useState<ToolMode>("whole");
+  const [cantusStaff, setCantusStaff] = useState<Voice>("lower");
   const [upper, setUpper] = useState<StaffNote[]>(emptyStaff(DEFAULT_MEASURE_COUNT));
   const [lower, setLower] = useState<StaffNote[]>(emptyStaff(DEFAULT_MEASURE_COUNT));
   const [isPlaying, setIsPlaying] = useState(false);
+  const [activeSweepIndex, setActiveSweepIndex] = useState<number | null>(null);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   const keyScale = useMemo(() => buildKeyMidiScale(keySignature), [keySignature]);
@@ -59,11 +61,13 @@ export default function App(): JSX.Element {
   const lowerRefIndex = useMemo(() => nearestScaleIndex(keyScale, LOWER_REFERENCE), [keyScale]);
 
   const lintMessages = useMemo(() => {
+    const cantusLine = cantusStaff === "lower" ? lower : upper;
+    const counterpointLine = cantusStaff === "lower" ? upper : lower;
     const cantus: Note[] = [];
     const counterpoint: Note[] = [];
     for (let i = 0; i < measureCount; i += 1) {
-      const cantusNote = lower[i];
-      const counterpointNote = upper[i];
+      const cantusNote = cantusLine[i];
+      const counterpointNote = counterpointLine[i];
       if (cantusNote && counterpointNote) {
         cantus.push(cantusNote);
         counterpoint.push(counterpointNote);
@@ -78,7 +82,13 @@ export default function App(): JSX.Element {
         }
       ];
     }
-    const messages = lintFirstSpecies(cantus, counterpoint);
+    const messages = lintFirstSpecies(
+      cantus,
+      counterpoint,
+      keySignature,
+      undefined,
+      cantusStaff === "upper"
+    );
     if (cantus.length < measureCount) {
       messages.unshift({
         ruleId: "incomplete",
@@ -87,9 +97,11 @@ export default function App(): JSX.Element {
       });
     }
     return messages;
-  }, [lower, measureCount, upper]);
+  }, [cantusStaff, keySignature, lower, measureCount, upper]);
 
   async function handlePlayback(): Promise<void> {
+    const cantusLine = cantusStaff === "lower" ? lower : upper;
+    const counterpointLine = cantusStaff === "lower" ? upper : lower;
     const hasAnyNote = [...upper, ...lower].some((note) => note !== null);
     if (!hasAnyNote) {
       setPlaybackError("Add at least one note before playback.");
@@ -98,10 +110,11 @@ export default function App(): JSX.Element {
     setIsPlaying(true);
     setPlaybackError(null);
     try {
-      await playTwoVoices(lower, upper);
+      await playTwoVoices(cantusLine, counterpointLine, 72, setActiveSweepIndex);
     } catch (error) {
       setPlaybackError((error as Error).message);
     } finally {
+      setActiveSweepIndex(null);
       setIsPlaying(false);
     }
   }
@@ -122,6 +135,13 @@ export default function App(): JSX.Element {
     setMeasureCount(nextMeasureCount);
     setUpper((current) => resizeStaff(current, nextMeasureCount));
     setLower((current) => resizeStaff(current, nextMeasureCount));
+  }
+
+  function resetStaves(): void {
+    setUpper(emptyStaff(measureCount));
+    setLower(emptyStaff(measureCount));
+    setActiveSweepIndex(null);
+    setPlaybackError(null);
   }
 
   return (
@@ -160,6 +180,14 @@ export default function App(): JSX.Element {
           </select>
         </label>
 
+        <label>
+          Cantus Firmus Staff
+          <select value={cantusStaff} onChange={(event) => setCantusStaff(event.target.value as Voice)}>
+            <option value="lower">Lower staff (bass)</option>
+            <option value="upper">Upper staff (treble)</option>
+          </select>
+        </label>
+
         <div className="tool-palette" role="group" aria-label="Notation tools">
           <span className="tool-title">Tools</span>
           <button
@@ -181,6 +209,9 @@ export default function App(): JSX.Element {
         <button type="button" onClick={() => void handlePlayback()} disabled={isPlaying}>
           {isPlaying ? "Playing..." : "Play Both Voices"}
         </button>
+        <button type="button" onClick={resetStaves} disabled={isPlaying}>
+          Reset Staves
+        </button>
       </section>
 
       {playbackError ? <p className="error-banner">Audio error: {playbackError}</p> : null}
@@ -200,6 +231,7 @@ export default function App(): JSX.Element {
           keyScale={keyScale}
           upperRefIndex={upperRefIndex}
           lowerRefIndex={lowerRefIndex}
+          activeSweepIndex={activeSweepIndex}
           onSetNote={(voice, slot, note) => {
             updateVoice(voice, slot, note);
             if (note) {
@@ -238,9 +270,21 @@ function GrandStaff(props: {
   keyScale: number[];
   upperRefIndex: number;
   lowerRefIndex: number;
+  activeSweepIndex: number | null;
   onSetNote: (voice: Voice, slot: number, note: StaffNote) => void;
 }): JSX.Element {
-  const { tool, keySignature, measureCount, upper, lower, keyScale, upperRefIndex, lowerRefIndex, onSetNote } = props;
+  const {
+    tool,
+    keySignature,
+    measureCount,
+    upper,
+    lower,
+    keyScale,
+    upperRefIndex,
+    lowerRefIndex,
+    activeSweepIndex,
+    onSetNote
+  } = props;
   const [layout, setLayout] = useState({
     slotBoundaries: Array.from({ length: measureCount + 1 }, (_, i) => 220 + i * 80),
     upperTopY: STAFF.topUpper,
@@ -327,6 +371,7 @@ function GrandStaff(props: {
           layout.slotBoundaries,
           layout.upperTopY,
           layout.upperBottomY,
+          activeSweepIndex,
           placeFromClick
         )}
         {renderHitboxes(
@@ -335,6 +380,7 @@ function GrandStaff(props: {
           layout.slotBoundaries,
           layout.lowerTopY,
           layout.lowerBottomY,
+          activeSweepIndex,
           placeFromClick
         )}
       </svg>
@@ -348,6 +394,7 @@ function renderHitboxes(
   slotBoundaries: number[],
   topY: number,
   bottomY: number,
+  activeSweepIndex: number | null,
   onClick: (voice: Voice, slot: number, clickY: number) => void
 ): JSX.Element {
   const zoneY = topY - STAFF.lineSpacing * 3;
@@ -361,6 +408,15 @@ function renderHitboxes(
         const slotWidth = Math.max(8, slotBoundaries[i + 1] - slotBoundaries[i]);
         return (
           <g key={`${voice}-${i}`}>
+            {activeSweepIndex === i ? (
+              <rect
+                x={x0}
+                y={topY - 3}
+                width={slotWidth}
+                height={bottomY - topY + 6}
+                className="sweep-highlight"
+              />
+            ) : null}
             <rect
               x={x0}
               y={zoneY}

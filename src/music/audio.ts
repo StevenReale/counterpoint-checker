@@ -4,7 +4,8 @@ import { midiToFrequency } from "./pitches";
 export async function playTwoVoices(
   cantus: Array<Note | null>,
   counterpoint: Array<Note | null>,
-  tempo = 72
+  tempo = 72,
+  onStep?: (index: number | null) => void
 ): Promise<void> {
   const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
   if (!AudioCtx) {
@@ -19,6 +20,9 @@ export async function playTwoVoices(
 
   for (let i = 0; i < length; i += 1) {
     const slotTime = startTime + i * beatDuration;
+    if (onStep) {
+      window.setTimeout(() => onStep(i), Math.max(0, Math.round((slotTime - context.currentTime) * 1000)));
+    }
     const cantusNote = cantus[i];
     if (cantusNote) {
       scheduleNote(context, cantusNote, slotTime, noteDuration, "triangle", 0.12);
@@ -31,6 +35,9 @@ export async function playTwoVoices(
 
   await new Promise<void>((resolve) => {
     window.setTimeout(() => {
+      if (onStep) {
+        onStep(null);
+      }
       void context.close();
       resolve();
     }, Math.ceil((length * beatDuration + 0.2) * 1000));
