@@ -1,0 +1,47 @@
+{
+  "species": "first",
+  "rules": [
+    {
+      "id": "equalLength",
+      "enabled": true,
+      "severity": "error",
+      "description": "Cantus and counterpoint must have the same number of notes."
+    },
+    {
+      "id": "wholeNotesOnly",
+      "enabled": true,
+      "severity": "error",
+      "description": "First species uses only whole notes."
+    },
+    {
+      "id": "counterpointAboveCantus",
+      "enabled": true,
+      "severity": "error",
+      "description": "Counterpoint should remain above the cantus firmus."
+    },
+    {
+      "id": "verticalConsonance",
+      "enabled": true,
+      "severity": "error",
+      "description": "Every vertical interval must be consonant."
+    },
+    {
+      "id": "perfectStartAndEnd",
+      "enabled": true,
+      "severity": "error",
+      "description": "Beginning and ending intervals must be perfect consonances."
+    },
+    {
+      "id": "noParallelPerfects",
+      "enabled": true,
+      "severity": "error",
+      "description": "Avoid parallel fifths and octaves between adjacent notes."
+    },
+    {
+      "id": "noRepeatedNotes",
+      "enabled": true,
+      "severity": "error",
+      "description": "A voice should not repeat the note played immediately before"
+    }
+  ]
+}

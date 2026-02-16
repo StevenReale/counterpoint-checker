@@ -1,0 +1,207 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #18202a;
+  background: #f3f6fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.app-header p {
+  margin: 8px 0 0;
+  color: #3b4552;
+}
+
+.control-row {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+}
+
+select,
+button {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #b8c3d1;
+  background: #fff;
+}
+
+button {
+  font-weight: 700;
+  cursor: pointer;
+  background: #135b92;
+  border-color: #135b92;
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.tool-palette {
+  border: 1px solid #c7d1de;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tool-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #364150;
+  margin-right: 4px;
+}
+
+.tool-btn {
+  background: #f4f7fb;
+  color: #203044;
+  border: 1px solid #b7c5d7;
+}
+
+.tool-btn.active {
+  background: #154d7a;
+  border-color: #154d7a;
+  color: #fff;
+}
+
+.error-banner {
+  margin: 12px 0 0;
+  padding: 8px 10px;
+  border: 1px solid #b84a4a;
+  border-radius: 8px;
+  background: #fff3f3;
+  color: #7d1d1d;
+}
+
+.score-panel,
+.analysis-panel {
+  margin-top: 16px;
+  background: #fff;
+  border: 1px solid #d6dde8;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.score-panel h2,
+.analysis-panel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.score-help {
+  margin: 8px 0 12px;
+  color: #435468;
+}
+
+svg {
+  width: 100%;
+  display: block;
+}
+
+.score-stack {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  width: 100%;
+}
+
+.vex-layer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.vex-layer svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.score-stack > svg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.measure-divider {
+  stroke: #92a6be;
+  stroke-width: 1;
+}
+
+.vex-layer .vf-measure-line {
+  stroke: #2f3c4a;
+  stroke-width: 1;
+}
+
+.note-hitbox {
+  fill: transparent;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+.note-hitbox:hover {
+  fill: rgba(18, 95, 146, 0.08);
+}
+
+.note-head {
+  fill: #111821;
+}
+
+.rest-mark {
+  fill: #29384a;
+}
+
+.ledger-line {
+  stroke: #33445a;
+  stroke-width: 1.4;
+}
+
+.analysis-panel ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.ok-msg {
+  margin: 8px 0 0;
+  color: #22653a;
+}
+
+@media (max-width: 900px) {
+  .control-row {
+    grid-template-columns: 1fr;
+  }
+}
